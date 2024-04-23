@@ -1,0 +1,39 @@
+{
+  "name": "min-db",
+  "version": "1.0.0",
+  "description": "Give Minidb a root object and it will save it as json (it's deep graph) and load it from disk next start.",
+  "keywords": ["db","persistence"],
+  "author": "Boris Gingold <bogeee@bogitech.de>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bogeeee/mini-db.git",
+    "directory": "mini-db"
+  },
+  "license": "MIT",
+  "main": "index.js",
+  "exports": {
+    ".": {
+      "import": "./index_esm.mjs",
+      "require": "./index.js"
+    }
+  },
+  "scripts": {
+    "devPlayground": "tsx devPlayground.ts",
+    "clean": "tsc --build --clean",
+    "build": "tsc --build --force"
+  },
+  "dependencies": {
+    "underscore": "^1.13.3",
+    "@types/underscore": "^1.11.4",
+    "@brillout/json-serializer": "^0.5.3",
+    "tsx": "^4.7.0",
+    "devalue": "^4.3.2"
+  },
+  "devDependencies": {
+    "rimraf": "=5.0.5",
+    "typescript": "^5.4.5",
+    "@types/node": "^20.12.7",
+    "ts-jest": "^29.0.3",
+    "@types/jest": "^29.2.2"
+  }
+}
