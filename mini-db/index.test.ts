@@ -1,11 +1,22 @@
 import * as fs from "node:fs";
-import { expect, test, beforeEach,describe } from 'vitest'
+import {it, expect, test, beforeEach,describe } from 'vitest'
+import {MiniDb} from "./index";
 
 
 beforeEach(() => {
-    //fs.rmdir("db");
+    if(fs.existsSync("db")) {
+        fs.rmdirSync("db");
+    }
 });
 
-test('test', () => {
-    expect(1).toBe(1)
+describe('db locking', () => {
+    it("should not be allowed to open a locked db", () => {
+        let miniDb = new MiniDb();
+        try {
+            expect(() => new MiniDb()).toThrow(/locked/);
+        }
+        finally {
+            miniDb.close();
+        }
+    })
 })

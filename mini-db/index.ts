@@ -3,7 +3,7 @@ import fs from "node:fs";
 import * as devalue from 'devalue';
 import {parse as brilloutJsonParse} from "@brillout/json-serializer/parse"
 import {stringify as brilloutJsonStringify} from "@brillout/json-serializer/stringify";
-import {visitReplace, VisitReplaceContext} from "./Util.js";
+import {fixErrorForJest, visitReplace, VisitReplaceContext} from "./Util.js";
 
 
 type ConstructorWithNoArgs<T> = {
@@ -79,6 +79,8 @@ export class MiniDb<T extends object> {
     serializer: "brilloutJson" | "devalue" = "brilloutJson"
 
     // *** state ****
+    state: "open" | "closed" | Error
+
     /**
      * Error, when there was an error last time
      */
@@ -120,6 +122,8 @@ export class MiniDb<T extends object> {
             }
             _.extend(this.root, loaded);
         }
+
+        this.state = "open"
 
         this.consolidateBackups();
     }
@@ -404,5 +408,21 @@ export class MiniDb<T extends object> {
                 fs.rmSync(`${this.path}/${entry.fileName}`)
             }
         })
+    }
+
+    protected checkIsOpen() {
+        if(this.state === "open") {
+            return;
+        }
+        else if(this.state === "closed") {
+            throw new Error("MiniDb has been closed.");
+        }
+        // Error ?
+        throw fixErrorForJest(new Error(`MiniDb failed fatally: ${this.state.message}, see cause`, {cause: this.state}))
+    }
+
+    close() {
+        // TODO: release lock
+        this.state = "closed";
     }
 }
