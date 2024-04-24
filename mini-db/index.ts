@@ -13,12 +13,22 @@ type ConstructorWithNoArgs<T> = {
 export class MiniDb<T extends object> {
     static systemClasses: ConstructorWithNoArgs<unknown>[] = [Date]
 
+    //***********************************************************************************************
+    //***** Section: Properties (Configuration). Also each are listed in type MiniDbOptions *********
+    //***********************************************************************************************
+
     /**
      * Path where the database files are stored
      */
     path: string
 
     /**
+     * You can specify a backup strategy
+     *
+     * Example:
+     * <pre><code>
+     * const db = new MiniDb("./myDb", {keepBackups: {minAgeInMinutes: 15, maxAgeInDays: 30}});
+     * </code></pre>
      * <p>
      * Undefined = don't keep backups
      * </p>
@@ -78,7 +88,10 @@ export class MiniDb<T extends object> {
      */
     serializer: "brilloutJson" | "devalue" = "brilloutJson"
 
-    // *** state ****
+    //***********************************************************************************************
+    //***** Section: State  *************************************************************************
+    //***********************************************************************************************
+
     state: "open" | "closed" | Error
 
     /**
@@ -92,7 +105,7 @@ export class MiniDb<T extends object> {
      * @param initialRoot value when the db file does not yet exist
      * @param options
      */
-    constructor(path = "./db", options?: Partial<MiniDb<T>>) {
+    constructor(path = "./db", options?: MiniDbOptions) {
         // Settings:
         this.path = path;
         _.extend(this, options || {});
@@ -378,7 +391,7 @@ export class MiniDb<T extends object> {
         const filesToKeep = new Set<string>();
         // Defaults:
         const minAgeInMinutes = this.keepBackups.minAgeInMinutes || 30;
-        const periodFactor = this.keepBackups.periodFactor || 2;
+        const periodFactor = this.keepBackups.periodFactor || 1.3;
         // Sort with incrasing age
         const backupFilesForIteration = [...allBackupFiles]
         backupFilesForIteration.sort((a,b) => a.ageMs - b.ageMs);
@@ -422,7 +435,17 @@ export class MiniDb<T extends object> {
     }
 
     close() {
+        // Cancel this.writeToDiskTimer:
+        if(this.writeToDiskTimer && !(this.writeToDiskTimer instanceof Error)) {
+            clearTimeout(this.writeToDiskTimer);
+            this.writeToDiskTimer = undefined;
+        }
+
+        this.writeToDisk();
+
         // TODO: release lock
         this.state = "closed";
     }
 }
+
+export type MiniDbOptions = Partial<Pick<MiniDb<any>, "root" | "classes" | "serializer" | "beautify" | "keepBackups" | "maxWriteWaitInSeconds">>
