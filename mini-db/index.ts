@@ -4,7 +4,7 @@ import * as devalue from 'devalue';
 import {parse as brilloutJsonParse} from "@brillout/json-serializer/parse"
 import {stringify as brilloutJsonStringify} from "@brillout/json-serializer/stringify";
 import {fixErrorForJest, visitReplace, VisitReplaceContext} from "./Util.js";
-
+import lockFile, {lockSync, unlockSync} from "lockfile"
 
 type ConstructorWithNoArgs<T> = {
     new(): T
@@ -110,7 +110,15 @@ export class MiniDb<T extends object> {
         this.path = path;
         _.extend(this, options || {});
 
-        // TODO: use lock file
+        this.ensureFolderExists();
+
+        // Make sure, no other process is using this db:
+        try {
+            lockSync(this.getLockFilePath(), {wait: 0})
+        }
+        catch (e: Error) {
+            throw new Error(`Cannot open database in ${this.path} because it is opened/locked by another Node.js/MiniDb process: ${e?.message}`);
+        }
 
         const dbFile = `${path}/db.json`
 
@@ -139,6 +147,15 @@ export class MiniDb<T extends object> {
         this.state = "open"
 
         this.consolidateBackups();
+    }
+
+    /**
+     *
+     * @private
+     * @returns full path/filename of the lock file to be used
+     */
+    private getLockFilePath() {
+        return `${this.path}/.~lock.db.json#`;
     }
 
     markChanged_firstTime = true;
@@ -199,10 +216,7 @@ export class MiniDb<T extends object> {
             }
         }
 
-        // Make sure the folder exits:
-        if(!fs.existsSync(this.path)) {
-            fs.mkdirSync(this.path); // Create db folder
-        }
+        this.ensureFolderExists();
 
         const dbFile = `${this.path}/db.json`;
         const nextFile = `${this.path}/db.next.json`
@@ -230,6 +244,12 @@ export class MiniDb<T extends object> {
         }
         else {
             fs.renameSync(nextFile, dbFile); // Just rename
+        }
+    }
+
+    private ensureFolderExists() {
+        if (!fs.existsSync(this.path)) {
+            fs.mkdirSync(this.path); // Create db folder
         }
     }
 
@@ -443,7 +463,8 @@ export class MiniDb<T extends object> {
 
         this.writeToDisk();
 
-        // TODO: release lock
+        unlockSync(this.getLockFilePath()); // Release lock
+
         this.state = "closed";
     }
 }
