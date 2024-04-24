@@ -24,7 +24,7 @@
     "devPlayground": "tsx devPlayground.ts",
     "clean": "tsc --build --clean",
     "build": "tsc --build --force",
-    "test": "npm run clean && vitest --clearScreen --hideSkippedTests --ui"
+    "test": "npm run clean && vitest --clearScreen --hideSkippedTests"
   },
   "dependencies": {
     "underscore": "^1.13.3",
