@@ -1,9 +1,11 @@
-jest.setTimeout(60 * 60 * 1000); // Increase timeout to 1h to make debugging possible
+import * as fs from "node:fs";
+import { expect, test, beforeEach,describe } from 'vitest'
 
 
 beforeEach(() => {
-
+    //fs.rmdir("db");
 });
 
-
-
+test('test', () => {
+    expect(1).toBe(1)
+})
