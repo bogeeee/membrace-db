@@ -32,7 +32,8 @@
     "@brillout/json-serializer": "^0.5.3",
     "tsx": "^4.7.0",
     "devalue": "^4.3.2",
-    "lockfile": "^1.0.4"
+    "lockfile": "^1.0.4",
+    "signal-exit": "^4.1.0"
   },
   "devDependencies": {
     "@types/node": "^20.12.7",

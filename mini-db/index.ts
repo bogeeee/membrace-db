@@ -5,6 +5,7 @@ import {parse as brilloutJsonParse} from "@brillout/json-serializer/parse"
 import {stringify as brilloutJsonStringify} from "@brillout/json-serializer/stringify";
 import {fixErrorForJest, visitReplace, VisitReplaceContext} from "./Util.js";
 import lockFile, {lockSync, unlockSync} from "lockfile"
+import { onExit } from 'signal-exit'
 
 type ConstructorWithNoArgs<T> = {
     new(): T
@@ -145,6 +146,11 @@ export class MiniDb<T extends object> {
         }
 
         this.state = "open"
+
+        // Attempt to write unsafed data before the process is killed:
+        onExit((code, signal) => {
+           this.close();
+        });
 
         this.consolidateBackups();
     }
@@ -455,6 +461,10 @@ export class MiniDb<T extends object> {
     }
 
     close() {
+        if(this.state === "closed") {
+            return;
+        }
+
         // Cancel this.writeToDiskTimer:
         if(this.writeToDiskTimer && !(this.writeToDiskTimer instanceof Error)) {
             clearTimeout(this.writeToDiskTimer);
