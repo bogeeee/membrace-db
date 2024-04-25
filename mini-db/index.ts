@@ -167,10 +167,12 @@ export class MiniDb<T extends object> {
     markChanged_firstTime = true;
 
     /**
-     * Informs this Db that the content (deep inside root) has changed. It will soon write it to disk.
-     * @see MiniDb#maxWriteDelayInSeconds
+     * Informs this db that the content (deep inside root) has changed. It will soon write it to disk.
+     * @see MiniDb#maxWriteWaitInSeconds
      */
     markChanged() {
+        this.checkIsOpen();
+
         if(this.markChanged_firstTime) {
             // Write immediately, to provoke errors early
             this.writeToDisk()
@@ -208,6 +210,8 @@ export class MiniDb<T extends object> {
      * Write the content to disk (the complete object graph under root)
      */
     writeToDisk() {
+        this.checkIsOpen();
+
         const jsonString = this.serializeToJson(this.root);
         if(this.verify) {
             const reloaded = this.deserializeFromJson(jsonString);
