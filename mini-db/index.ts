@@ -6,6 +6,7 @@ import {stringify as brilloutJsonStringify} from "@brillout/json-serializer/stri
 import {fixErrorForJest, getPersistable, visitReplace, VisitReplaceContext} from "./Util.js";
 import lockFile, {lockSync, unlockSync} from "lockfile"
 import { onExit } from 'signal-exit'
+import "reflect-metadata";
 
 type ConstructorWithNoArgs<T> = {
     new(): T
