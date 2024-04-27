@@ -7,3 +7,5 @@
 /**/*.map
 /tsconfig.tsbuildinfo
 devPlayground.ts
+readme.md
+LICENSE

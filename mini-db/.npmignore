@@ -1,3 +1,4 @@
 /**/tsconfig.*
 /**/*.test.*
+devPlayground.*
 /__tests__

@@ -1,7 +1,7 @@
 {
-  "name": "min-db",
+  "name": "mini-db",
   "version": "1.0.0",
-  "description": "Give Minidb a root object and it will save it as json (it's deep graph) and load it from disk next start.",
+  "description": "Give MiniDb a root object and it will save it as json (it's deep graph) and load it from disk next start.",
   "keywords": [
     "db",
     "persistence"
@@ -22,9 +22,13 @@
   },
   "scripts": {
     "devPlayground": "tsx devPlayground.ts",
-    "clean": "tsc --build --clean",
+    "clean": "tsc --build --clean && rimraf dist LICENSE readme.md",
     "build": "tsc --build --force",
-    "test": "npm run clean && vitest --clearScreen --hideSkippedTests"
+    "test": "npm run clean && vitest --clearScreen --hideSkippedTests",
+    "prepublish": "npm run clean && npm run build && ncp ../LICENSE ./LICENSE && ncp ../readme.md ./readme.md",
+    "publish:npmlogin": "npm login",
+    "publish:publish": "npm run prepublish && npm publish"
+
   },
   "dependencies": {
     "@brillout/json-serializer": "^0.5.3",
@@ -41,6 +45,7 @@
     "@types/node": "^20.12.7",
     "@vitest/ui": "^1.5.1",
     "rimraf": "=5.0.5",
+    "ncp": "=2.0.0",
     "typescript": "^5.4.5",
     "vitest": "^1.5.0"
   }

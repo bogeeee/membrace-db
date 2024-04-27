@@ -66,7 +66,7 @@ import {MiniDb, persistence} from "mini-db";
 class User {
     id: number = generateID();
     
-    @persistence({/* options */}) // With classes, you also have some options here, like non-persistent/transient fields
+    @persistence({/* options */}) // Within classes, you also have some options here, like non-persistent/transient fields. Use IntelliSense.
     name: string
 
     constructor(name?: string) { // Note: the parameter `name` is optional. You must give MiniDb the chance to call the constructor with **no arguments** when it restores from disk.
