@@ -119,8 +119,8 @@ export class MiniDb<T extends object> {
         try {
             lockSync(this.getLockFilePath(), {wait: 0})
         }
-        catch (e: Error) {
-            throw new Error(`Cannot open database in ${this.path} because it is opened/locked by another Node.js/MiniDb process: ${e?.message}`);
+        catch (e) {
+            throw new Error(`Cannot open database in ${this.path} because it is opened/locked by another Node.js/MiniDb process: ${(e as Error)?.message}`);
         }
 
         const dbFile = `${path}/db.json`
