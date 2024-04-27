@@ -142,7 +142,8 @@ export class MiniDb<T extends object> {
             if(typeof loaded !== "object") {
                 throw new Error(`Content of ${dbFile} is not an object.`)
             }
-            _.extend(this.root, loaded);
+
+            this.root = loaded
         }
 
         this.state = "open"
