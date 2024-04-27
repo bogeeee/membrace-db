@@ -1,12 +1,23 @@
 // Persistence Decorator
 
-// Usage example:
-// @persistence({persist: false})
-// propertyName: any;
+type PersistenceOptions = {
+    /**
+     * Whether this property should be persisted on disk or not (=transient)
+     * Default: true
+     */
+    persist: boolean;
+};
 
-export const persistence = (options: {
-  persist: boolean;
-}): PropertyDecorator => {
+//
+/**
+ * Usage example:
+ * <pre><code>
+ * @persistence({persist: false})
+ * myProperty: any; *
+ * </pre></code>
+ * @param options
+ */
+export const persistence = (options: PersistenceOptions): PropertyDecorator => {
   return function (target: Object, propertyKey: string | symbol) {
     Reflect.defineMetadata(
       propertyKey,

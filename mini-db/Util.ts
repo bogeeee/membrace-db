@@ -175,6 +175,10 @@ export function errorToString(e: any): string {
 
 export type ErrorWithExtendedInfo = Error & { cause?: Error, fileName?: string, lineNumber?: Number, columnNumber?: Number, stack?: string };
 
+/**
+ * TODO: Beter function name. Eventually move to index.ts
+ * @param object
+ */
 export function getPersistable<T extends Object>(object: T) {
 
     const persistableObject = structuredClone(object);

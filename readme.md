@@ -33,7 +33,7 @@ npm install --save mini-db
 # Usage
 
 ````typescript
-import {MiniDb} from "mini-db";
+import {MiniDb, persistence} from "mini-db";
 
 const exampleDatabaseContent = {
     users: [{id: 1, name: "Alice"}, {id: 2, name: "Bob"}],
@@ -61,14 +61,17 @@ You like to program the OOP way ? You can store class instances and they will be
 Even your root object can be a class instance (class `ApplicationData` here):
 
 ````typescript
+import {MiniDb, persistence} from "mini-db";
 
 class User {
-  id: number = generateID();
-  name: string
+    id: number = generateID();
+    
+    @persistence({/* options */}) // With classes, you also have some options here, like non-persistent/transient fields
+    name: string
 
-  constructor(name?: string) { // Note: the parameter `name` is optional. You must give MiniDb the chance to call the constructor with **no arguments** when it restores from disk.
-      this.name = name;
-  }
+    constructor(name?: string) { // Note: the parameter `name` is optional. You must give MiniDb the chance to call the constructor with **no arguments** when it restores from disk.
+        this.name = name;
+    }
 }
 
 class ApplicationData {

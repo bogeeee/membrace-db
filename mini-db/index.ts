@@ -7,6 +7,7 @@ import {fixErrorForJest, getPersistable, visitReplace, VisitReplaceContext} from
 import lockFile, {lockSync, unlockSync} from "lockfile"
 import { onExit } from 'signal-exit'
 import "reflect-metadata";
+export {persistence} from "./decorators.js";
 
 type ConstructorWithNoArgs<T> = {
     new(): T
