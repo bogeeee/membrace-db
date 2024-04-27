@@ -2,7 +2,7 @@ import * as fs from "node:fs";
 import {it, expect, test, beforeEach,describe } from 'vitest'
 import {MiniDb} from "./index";
 import exp from "constants";
-
+import { persistence } from "./decorators";
 
 beforeEach(() => {
     // Clear folder:
@@ -25,7 +25,6 @@ describe('Basic test', () => {
         let miniDb = new MiniDb("db", {root: createSampleObjectGraphForJson()});
         miniDb.close();
 
-
         let miniDb2 = new MiniDb("db");
         try {
             expect(miniDb2.root).toStrictEqual(createSampleObjectGraphForJson());
@@ -46,5 +45,35 @@ describe('db locking', () => {
         finally {
             miniDb.close();
         }
-    })
-})
+  });
+});
+
+describe("persistence decorator", () => {
+  it("should not persist non-persistent fields", () => {
+    class Test {
+      @persistence({ persist: false })
+      nonPersist = 123;
+      persist = "random value";
+    }
+
+    const myObject = new Test();
+
+    const db1 = new MiniDb("./db", {
+      root: myObject,
+      classes: [Test],
+    });
+
+    myObject.persist = "NEW VALUE";
+    myObject.nonPersist = 1234;
+
+    db1.close();
+
+    const db2 = new MiniDb("./db", {
+      classes: [Test],
+    });
+
+    expect((db2.root as any).persist).toBe("NEW VALUE");
+    expect((db2.root as any).nonPersist).toBe(123);
+    db2.close();
+  });
+});

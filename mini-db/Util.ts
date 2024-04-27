@@ -174,3 +174,20 @@ export function errorToString(e: any): string {
 
 
 export type ErrorWithExtendedInfo = Error & { cause?: Error, fileName?: string, lineNumber?: Number, columnNumber?: Number, stack?: string };
+
+export function getPersistable<T extends Object>(object: T) {
+
+    const persistableObject = structuredClone(object);
+    const keysWithMetadata = Reflect.getMetadataKeys(object);
+    keysWithMetadata.forEach((k) => {
+      const data = Reflect.getMetadata(k, object);
+        
+        const shouldBeExcluded = data.persist === false;
+        
+        if (shouldBeExcluded) {
+            delete persistableObject[k];
+        }
+    });
+    
+    return persistableObject;
+}

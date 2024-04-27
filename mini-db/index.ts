@@ -3,7 +3,7 @@ import fs from "node:fs";
 import * as devalue from 'devalue';
 import {parse as brilloutJsonParse} from "@brillout/json-serializer/parse"
 import {stringify as brilloutJsonStringify} from "@brillout/json-serializer/stringify";
-import {fixErrorForJest, visitReplace, VisitReplaceContext} from "./Util.js";
+import {fixErrorForJest, getPersistable, visitReplace, VisitReplaceContext} from "./Util.js";
 import lockFile, {lockSync, unlockSync} from "lockfile"
 import { onExit } from 'signal-exit'
 
@@ -211,14 +211,17 @@ export class MiniDb<T extends object> {
      */
     writeToDisk() {
         this.checkIsOpen();
-
         const jsonString = this.serializeToJson(this.root);
+        
         if(this.verify) {
             const reloaded = this.deserializeFromJson(jsonString);
-            if(!_.isEqual(this.root, reloaded)) {
-                throw new Error("Database content does not reload to the exact same value");
+            
+            if (!_.isEqual(getPersistable(this.root), getPersistable(reloaded))) {
+                throw new Error(
+                    "Database content does not reload to the exact same value"
+                );
             }
-
+            
             // CHeck if it serialzes to the same vflue again:
             const reloaded_reSerialized = this.serializeToJson(reloaded);
             if(reloaded_reSerialized !== jsonString) {
@@ -320,6 +323,8 @@ export class MiniDb<T extends object> {
             return visitChilds(value, context)
         }, "onError");
 
+        value = getPersistable(value);
+        
         if(this.serializer === "devalue") {
             if(foundSomeClassInstance) {
                 value = structuredClone(value); // This converts all class instances back to plain objects. Because devalue cannot store class instances
