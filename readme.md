@@ -75,15 +75,14 @@ class User {
 }
 
 class ApplicationData {
-  users: User[] = []
-  currentComment = "Hello"
+    users: User[] = []
+    currentComment = "Hello"
 }
 
-const db = new MembraceDb("./db", {
-  root: new ApplicationData(), // Initial content
-  classes: [ApplicationData, User] // All your classes must be registed here, so MembraceDb knows, how to restore them from disk.  
+const db = new MembraceDb<ApplicationData>("./db", {
+    root: new ApplicationData(), // Initial content
+    classes: [ApplicationData, User] // All your classes must be registed here, so MembraceDb knows, how to restore them from disk.
 });
-
 
 db.root.users.push(new User("Andrej")); // somehow modify data (as usual)
 
