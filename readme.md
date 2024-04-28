@@ -1,4 +1,4 @@
-# MiniDb
+# MembraceDb
 For Node.js
 
 **Just give Minidb a root object and it will save it as json** (it's deep graph) and load it from disk next start.
@@ -27,13 +27,13 @@ So, the the concept looks promising and let's see how far we can drill up this c
 # Install
 
 ````bash
-npm install --save mini-db
+npm install --save membrace-db
 ````
 
 # Usage
 
 ````typescript
-import {MiniDb, persistence} from "mini-db";
+import {MiniDb, persistence} from "membrace-db";
 
 const exampleDatabaseContent = {
     users: [{id: 1, name: "Alice"}, {id: 2, name: "Bob"}],
@@ -61,7 +61,7 @@ You like to program the OOP way ? You can store class instances and they will be
 Even your root object can be a class instance (class `ApplicationData` here):
 
 ````typescript
-import {MiniDb, persistence} from "mini-db";
+import {MiniDb, persistence} from "membrace-db";
 
 class User {
     id: number = generateID();

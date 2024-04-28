@@ -1,5 +1,5 @@
 {
-  "name": "mini-db",
+  "name": "membrace-db",
   "version": "1.0.0",
   "description": "Give MiniDb a root object and it will save it as json (it's deep graph) and load it from disk next start.",
   "keywords": [
@@ -9,8 +9,8 @@
   "author": "Boris Gingold <bogeee@bogitech.de>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/bogeeee/mini-db.git",
-    "directory": "mini-db"
+    "url": "https://github.com/bogeeee/membrace-db.git",
+    "directory": "membrace-db"
   },
   "license": "MIT",
   "main": "index.js",
