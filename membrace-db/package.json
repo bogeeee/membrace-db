@@ -22,7 +22,7 @@
   },
   "scripts": {
     "devPlayground": "tsx devPlayground.ts",
-    "clean": "tsc --build --clean && rimraf dist LICENSE readme.md",
+    "clean": "tsc --build --clean && rimraf dist LICENSE readme.md db",
     "build": "tsc --build --force",
     "test": "npm run clean && vitest --clearScreen --hideSkippedTests",
     "prepublish": "npm run clean && npm run build && ncp ../LICENSE ./LICENSE && ncp ../readme.md ./readme.md",
