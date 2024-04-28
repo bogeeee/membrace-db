@@ -70,7 +70,7 @@ class User {
     name: string
 
     constructor(name?: string) { // Note: the parameter `name` is optional. You must give MembraceDb the chance to call the constructor with **no arguments** when it restores from disk.
-        this.name = name;
+        this.name = name!;
     }
 }
 
@@ -85,7 +85,7 @@ const db = new MembraceDb("./db", {
 });
 
 
-root.users.push(new User("Andrej")); // somehow modify data (as usual)
+db.root.users.push(new User("Andrej")); // somehow modify data (as usual)
 
 db.writeToDisk()
 

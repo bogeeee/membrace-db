@@ -344,6 +344,7 @@ export class MembraceDb<T extends object> {
             }
             catch (e) {
                 if(e instanceof Error && e.message.startsWith("Converting circular structure to JSON")) {
+                    //@ts-ignore when consumers don't compile with lib:["es2022.error"]
                     throw new Error(`Found circular structure, which is not supported with brilloutJson. To support it, you can set the MembraceDb#serializer field/option to "devalue".`, {cause: e}) //;
                 }
                 throw e;
@@ -469,6 +470,7 @@ export class MembraceDb<T extends object> {
             throw new Error("MembraceDb has been closed.");
         }
         // Error ?
+        //@ts-ignore when consumers don't compile with lib:["es2022.error"]
         throw fixErrorForJest(new Error(`MembraceDb failed fatally: ${this.state.message}, see cause`, {cause: this.state}))
     }
 
