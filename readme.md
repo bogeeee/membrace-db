@@ -1,7 +1,7 @@
 # MembraceDb
 For Node.js
 
-**Just give Minidb a root object and it will save it as json** (it's deep graph) and load it from disk next start.
+**Just give MembraceDb a root object and it will save it as json** (it's deep graph) and load it from disk next start.
 
 That's the concept. So the main organization structure is just your objects in memory (at your fingertips) *yeah*. You don't have to think how to fit these into tables, meaning: No SQL, no ORM, no relations to configure, ...
 
@@ -16,7 +16,7 @@ So, the the concept looks promising and let's see how far we can drill up this c
 
 # Features
 
-- Can persist **class instances** and restore them as such. MiniDb will tell you to register them.
+- Can persist **class instances** and restore them as such. MembraceDb will tell you to register them.
 - Can keep **backups**. With smart consolidation.
 - **Atomic writes** (file swaps) and corruption checks.
 - Supports data types **beyond json**: `undefined`, `Infinity`, `NaN`, `-0`, `Date`, `Map`, `Set`, `BigInt`, regular expressions, circular references. See the `serializer` option.
@@ -33,7 +33,7 @@ npm install --save membrace-db
 # Usage
 
 ````typescript
-import {MiniDb, persistence} from "membrace-db";
+import {MembraceDb, persistence} from "membrace-db";
 
 const exampleDatabaseContent = {
     users: [{id: 1, name: "Alice"}, {id: 2, name: "Bob"}],
@@ -41,7 +41,7 @@ const exampleDatabaseContent = {
 }
 
 // Create the database instance. All content will be saved to ./db/db.json:
-const db = new MiniDb("./db", {
+const db = new MembraceDb("./db", {
     root: exampleDatabaseContent, // This will be the first initial content, if no database file was created yet.
     // ... other options (use intellisense)
 });
@@ -61,7 +61,7 @@ You like to program the OOP way ? You can store class instances and they will be
 Even your root object can be a class instance (class `ApplicationData` here):
 
 ````typescript
-import {MiniDb, persistence} from "membrace-db";
+import {MembraceDb, persistence} from "membrace-db";
 
 class User {
     id: number = generateID();
@@ -69,7 +69,7 @@ class User {
     @persistence({/* options */}) // Within classes, you also have some options here, like non-persistent/transient fields. Use IntelliSense.
     name: string
 
-    constructor(name?: string) { // Note: the parameter `name` is optional. You must give MiniDb the chance to call the constructor with **no arguments** when it restores from disk.
+    constructor(name?: string) { // Note: the parameter `name` is optional. You must give MembraceDb the chance to call the constructor with **no arguments** when it restores from disk.
         this.name = name;
     }
 }
@@ -79,9 +79,9 @@ class ApplicationData {
   currentComment = "Hello"
 }
 
-const db = new MiniDb("./db", {
+const db = new MembraceDb("./db", {
   root: new ApplicationData(), // Initial content
-  classes: [ApplicationData, User] // All your classes must be registed here, so miniDb knows, how to restore them from disk.  
+  classes: [ApplicationData, User] // All your classes must be registed here, so MembraceDb knows, how to restore them from disk.  
 });
 
 

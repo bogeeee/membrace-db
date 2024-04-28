@@ -1,6 +1,6 @@
 import * as fs from "node:fs";
 import {it, expect, test, beforeEach,describe } from 'vitest'
-import {MiniDb} from "./index";
+import {MembraceDb} from "./index";
 import exp from "constants";
 import { persistence } from "./decorators";
 
@@ -22,10 +22,10 @@ function createSampleObjectGraphForJson() {
 
 describe('Basic test', () => {
     it("should have the same graph when reopening", () => {
-        let miniDb = new MiniDb("db", {root: createSampleObjectGraphForJson()});
+        let miniDb = new MembraceDb("db", {root: createSampleObjectGraphForJson()});
         miniDb.close();
 
-        let miniDb2 = new MiniDb("db");
+        let miniDb2 = new MembraceDb("db");
         try {
             expect(miniDb2.root).toStrictEqual(createSampleObjectGraphForJson());
         }
@@ -38,9 +38,9 @@ describe('Basic test', () => {
 
 describe('db locking', () => {
     it("should not be allowed to open a locked db", () => {
-        let miniDb = new MiniDb();
+        let miniDb = new MembraceDb();
         try {
-            expect(() => new MiniDb()).toThrow(/locked/);
+            expect(() => new MembraceDb()).toThrow(/locked/);
         }
         finally {
             miniDb.close();
@@ -58,7 +58,7 @@ describe("persistence decorator", () => {
 
     const myObject = new Test();
 
-    const db1 = new MiniDb("./db", {
+    const db1 = new MembraceDb("./db", {
       root: myObject,
       classes: [Test],
     });
@@ -68,7 +68,7 @@ describe("persistence decorator", () => {
 
     db1.close();
 
-    const db2 = new MiniDb("./db", {
+    const db2 = new MembraceDb("./db", {
       classes: [Test],
     });
 

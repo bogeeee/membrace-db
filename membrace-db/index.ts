@@ -13,11 +13,11 @@ type ConstructorWithNoArgs<T> = {
     new(): T
 }
 
-export class MiniDb<T extends object> {
+export class MembraceDb<T extends object> {
     static systemClasses: ConstructorWithNoArgs<unknown>[] = [Date]
 
     //***********************************************************************************************
-    //***** Section: Properties (Configuration). Also each are listed in type MiniDbOptions *********
+    //***** Section: Properties (Configuration). Also each are listed in type MembraceDbOptions *********
     //***********************************************************************************************
 
     /**
@@ -30,7 +30,7 @@ export class MiniDb<T extends object> {
      *
      * Example:
      * <pre><code>
-     * const db = new MiniDb("./myDb", {keepBackups: {minAgeInMinutes: 15, maxAgeInDays: 30}});
+     * const db = new MembraceDb("./myDb", {keepBackups: {minAgeInMinutes: 15, maxAgeInDays: 30}});
      * </code></pre>
      * <p>
      * Undefined = don't keep backups
@@ -108,7 +108,7 @@ export class MiniDb<T extends object> {
      * @param initialRoot value when the db file does not yet exist
      * @param options
      */
-    constructor(path = "./db", options?: MiniDbOptions) {
+    constructor(path = "./db", options?: MembraceDbOptions) {
         // Settings:
         this.path = path;
         _.extend(this, options || {});
@@ -120,7 +120,7 @@ export class MiniDb<T extends object> {
             lockSync(this.getLockFilePath(), {wait: 0})
         }
         catch (e) {
-            throw new Error(`Cannot open database in ${this.path} because it is opened/locked by another Node.js/MiniDb process: ${(e as Error)?.message}`);
+            throw new Error(`Cannot open database in ${this.path} because it is opened/locked by another Node.js/MembraceDb process: ${(e as Error)?.message}`);
         }
 
         const dbFile = `${path}/db.json`
@@ -171,7 +171,7 @@ export class MiniDb<T extends object> {
 
     /**
      * Informs this db that the content (deep inside root) has changed. It will soon write it to disk.
-     * @see MiniDb#maxWriteWaitInSeconds
+     * @see MembraceDb#maxWriteWaitInSeconds
      */
     markChanged() {
         this.checkIsOpen();
@@ -278,7 +278,7 @@ export class MiniDb<T extends object> {
             class2name: new Map<ConstructorWithNoArgs<unknown>, string>()
         };
 
-        [...MiniDb.systemClasses, ...this.classes].forEach(clazz => {
+        [...MembraceDb.systemClasses, ...this.classes].forEach(clazz => {
             const className = clazz.name;
 
             // Check validity:
@@ -313,7 +313,7 @@ export class MiniDb<T extends object> {
                 if(!(clazz === Object || clazz === Array)) {
                     const className = classesMap.class2name.get(clazz);
                     if (!className) {
-                        throw new Error(`Class "${clazz.name}" is not registered. The db can only be restored with class instance support, if all used classes are registerd. Please list that class in the MiniDb#classes array (via options). The class was found under: root${context!.diagnosis_path}`)
+                        throw new Error(`Class "${clazz.name}" is not registered. The db can only be restored with class instance support, if all used classes are registerd. Please list that class in the MembraceDb#classes array (via options). The class was found under: root${context!.diagnosis_path}`)
                     }
                     // @ts-ignore
                     value._constructorName = className;
@@ -344,7 +344,7 @@ export class MiniDb<T extends object> {
             }
             catch (e) {
                 if(e instanceof Error && e.message.startsWith("Converting circular structure to JSON")) {
-                    throw new Error(`Found circular structure, which is not supported with brilloutJson. To support it, you can set the MiniDb#serializer field/option to "devalue".`, {cause: e}) //;
+                    throw new Error(`Found circular structure, which is not supported with brilloutJson. To support it, you can set the MembraceDb#serializer field/option to "devalue".`, {cause: e}) //;
                 }
                 throw e;
             }
@@ -374,7 +374,7 @@ export class MiniDb<T extends object> {
                 const className = (value as any)._constructorName;
                 const clazz = classesMap.name2Class.get(className);
                 if (!clazz) {
-                    throw new Error(`Cannot load db. Class "${className}" is not registered. Please list that class in the MiniDb#classes array (via options). The class was found in the db file under: root${context!.diagnosis_path}`)
+                    throw new Error(`Cannot load db. Class "${className}" is not registered. Please list that class in the MembraceDb#classes array (via options). The class was found in the db file under: root${context!.diagnosis_path}`)
                 }
 
                 // Replace value with class instance:
@@ -466,10 +466,10 @@ export class MiniDb<T extends object> {
             return;
         }
         else if(this.state === "closed") {
-            throw new Error("MiniDb has been closed.");
+            throw new Error("MembraceDb has been closed.");
         }
         // Error ?
-        throw fixErrorForJest(new Error(`MiniDb failed fatally: ${this.state.message}, see cause`, {cause: this.state}))
+        throw fixErrorForJest(new Error(`MembraceDb failed fatally: ${this.state.message}, see cause`, {cause: this.state}))
     }
 
     close() {
@@ -491,4 +491,4 @@ export class MiniDb<T extends object> {
     }
 }
 
-export type MiniDbOptions = Partial<Pick<MiniDb<any>, "root" | "classes" | "serializer" | "beautify" | "keepBackups" | "maxWriteWaitInSeconds">>
+export type MembraceDbOptions = Partial<Pick<MembraceDb<any>, "root" | "classes" | "serializer" | "beautify" | "keepBackups" | "maxWriteWaitInSeconds">>

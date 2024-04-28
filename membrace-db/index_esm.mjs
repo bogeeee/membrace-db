@@ -2,7 +2,7 @@
 
 
 import cjsIndex from "./index.js"
-export const MiniDb = cjsIndex.MiniDb
+export const MembraceDb = cjsIndex.MembraceDb
 
 import cjsDecorators from "./decorators.js"
 export const persistence = cjsDecorators.persistence
