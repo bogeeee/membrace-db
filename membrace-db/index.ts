@@ -89,7 +89,7 @@ export class MembraceDb<T extends object> {
     /**
      * Use "devalue", if you want to store circular references. But the result is not very readable then.
      */
-    serializer: "brilloutJson" | "devalue" = "brilloutJson"
+    format: "brilloutJson" | "devalue" = "brilloutJson"
 
     //***********************************************************************************************
     //***** Section: State  *************************************************************************
@@ -328,7 +328,7 @@ export class MembraceDb<T extends object> {
 
         value = getPersistable(value);
         
-        if(this.serializer === "devalue") {
+        if(this.format === "devalue") {
             if(foundSomeClassInstance) {
                 value = structuredClone(value); // This converts all class instances back to plain objects. Because devalue cannot store class instances
             }
@@ -338,33 +338,33 @@ export class MembraceDb<T extends object> {
             }
             return result;
         }
-        else if(this.serializer === "brilloutJson") {
+        else if(this.format === "brilloutJson") {
             try {
                 return brilloutJsonStringify(value,{space: this.beautify?4:undefined});
             }
             catch (e) {
                 if(e instanceof Error && e.message.startsWith("Converting circular structure to JSON")) {
                     //@ts-ignore when consumers don't compile with lib:["es2022.error"]
-                    throw new Error(`Found circular structure, which is not supported with brilloutJson. To support it, you can set the MembraceDb#serializer field/option to "devalue".`, {cause: e}) //;
+                    throw new Error(`Found circular structure, which is not supported with brilloutJson. To support it, you can set the MembraceDbOptions#format field/option to "devalue".`, {cause: e}) //;
                 }
                 throw e;
             }
         }
         else {
-            throw new Error("Invalid serializer")
+            throw new Error("Invalid format")
         }
     }
 
     protected deserializeFromJson(json: string): T {
         let result: T;
-        if(this.serializer === "devalue") {
+        if(this.format === "devalue") {
             result = devalue.parse(json) as T;
         }
-        else if(this.serializer === "brilloutJson") {
+        else if(this.format === "brilloutJson") {
             result = brilloutJsonParse(json) as T;
         }
         else {
-            throw new Error("Invalid serializer")
+            throw new Error("Invalid format")
         }
 
         // Scan for _constructorName property and create a class instance
@@ -493,4 +493,4 @@ export class MembraceDb<T extends object> {
     }
 }
 
-export type MembraceDbOptions = Partial<Pick<MembraceDb<any>, "root" | "classes" | "serializer" | "beautify" | "keepBackups" | "maxWriteWaitInSeconds">>
+export type MembraceDbOptions = Partial<Pick<MembraceDb<any>, "root" | "classes" | "format" | "beautify" | "keepBackups" | "maxWriteWaitInSeconds">>
