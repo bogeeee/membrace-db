@@ -189,6 +189,7 @@ export function getPersistable<T extends Object>(object: T) {
         const shouldBeExcluded = data.persist === false;
         
         if (shouldBeExcluded) {
+            //@ts-ignore
             delete persistableObject[k];
         }
     });
