@@ -76,4 +76,30 @@ describe("persistence decorator", () => {
     expect((db2.root as any).nonPersist).toBe(123);
     db2.close();
   });
+
+
+    it("should persist fields, when persist = undefined (defaulting to true)", () => {
+        class Test {
+            @persistence({ })
+            myField = 123;
+        }
+
+        const myObject = new Test();
+
+        const db1 = new MembraceDb("./db", {
+            root: myObject,
+            classes: [Test],
+        });
+
+        myObject.myField = 1234;
+
+        db1.close();
+
+        const db2 = new MembraceDb("./db", {
+            classes: [Test],
+        });
+
+        expect((db2.root as any).myField).toBe(1234);
+        db2.close();
+    });
 });

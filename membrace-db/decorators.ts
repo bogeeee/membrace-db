@@ -5,7 +5,7 @@ type PersistenceOptions = {
      * Whether this property should be persisted on disk or not (=transient)
      * Default: true
      */
-    persist: boolean;
+    persist?: boolean;
 };
 
 //
