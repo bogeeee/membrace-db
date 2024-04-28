@@ -105,10 +105,9 @@ export class MembraceDb<T extends object> {
     /**
      *
      * @param path
-     * @param initialRoot value when the db file does not yet exist
      * @param options
      */
-    constructor(path = "./db", options?: MembraceDbOptions) {
+    constructor(path = "./db", options?: MembraceDbOptions<T>) {
         // Settings:
         this.path = path;
         _.extend(this, options || {});
@@ -493,4 +492,4 @@ export class MembraceDb<T extends object> {
     }
 }
 
-export type MembraceDbOptions = Partial<Pick<MembraceDb<any>, "root" | "classes" | "format" | "beautify" | "keepBackups" | "maxWriteWaitInSeconds">>
+export type MembraceDbOptions<T extends object> = Partial<Pick<MembraceDb<T>, "root" | "classes" | "format" | "beautify" | "keepBackups" | "maxWriteWaitInSeconds">>
