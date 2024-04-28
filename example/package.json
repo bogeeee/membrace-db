@@ -1,0 +1,16 @@
+{
+  "name": "membrace-example",
+  "version": "1.0.0",
+  "description": "",
+  "type": "commonjs",
+  "main": "./index",
+  "scripts": {
+    "dev": "tsx watch index.ts"
+  },
+  "dependencies": {
+    "membrace-db": "^1.0.1"
+  },
+  "devDependencies": {
+    "tsx": "^4.7.0"
+  }
+}
