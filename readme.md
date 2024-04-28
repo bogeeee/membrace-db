@@ -1,5 +1,5 @@
 # MembraceDb
-For Node.js
+An easy-to-use memory-first database for Node.js
 
 **Just give MembraceDb a root object and it will save it as json** (it's deep graph) and load it from disk next start.
 
