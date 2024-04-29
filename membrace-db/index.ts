@@ -3,7 +3,7 @@ import fs from "node:fs";
 import * as devalue from 'devalue';
 import {parse as brilloutJsonParse} from "@brillout/json-serializer/parse"
 import {stringify as brilloutJsonStringify} from "@brillout/json-serializer/stringify";
-import {fixErrorForJest, removeNonPersistentFields, visitReplace, VisitReplaceContext} from "./Util.js";
+import {fixErrorForJest, visitReplace, VisitReplaceContext} from "./Util.js";
 import lockFile, {lockSync, unlockSync} from "lockfile"
 import { onExit } from 'signal-exit'
 import "reflect-metadata";
@@ -364,8 +364,11 @@ export class MembraceDb<T extends object> {
      */
     protected serialize_removeNonPersistentFields(root: T) {
         return visitReplace(root, (value, visitChilds, context) => {
-            if (typeof value === "object" && value !== null && value._constructorName !== undefined) { // Value was a class ?
-                const clazz = this.classesMap.name2Class.get(value._constructorName);
+            if (typeof value === "object" && value !== null && (value as any)._constructorName !== undefined) { // Value was a class ?
+                const clazz = this.classesMap.name2Class.get((value as any)._constructorName);
+                if(!clazz) {
+                    throw new Error("Illegal state: class is not registered");
+                }
                 const keysWithMetadata = Reflect.getMetadataKeys(clazz);
                 keysWithMetadata.forEach((k) => {
                     const data = Reflect.getMetadata(k, clazz);
