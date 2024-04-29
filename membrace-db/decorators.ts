@@ -2,7 +2,10 @@
 
 type PersistenceOptions = {
     /**
-     * Whether this property should be persisted on disk or not (=transient)
+     * Whether this property should be persisted on disk or not (=transient).
+     * <p>
+     * Warning: The current implementation still scans the memory behind this field, which might be slow / cause issues. See https://github.com/bogeeee/membrace-db/issues/1
+     * </p>
      * Default: true
      */
     persist?: boolean;

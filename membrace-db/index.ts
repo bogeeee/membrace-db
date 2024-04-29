@@ -329,7 +329,7 @@ export class MembraceDb<T extends object> {
             return visitChilds(value, context)
         }, "onError");
 
-        value = structuredClone(value);
+        value = structuredClone(value); // Ok, this is rather a hack here, because it still follows into the memory which the user doesn't want
         value = this.serialize_removeNonPersistentFields(value);
         
         if(this.format === "devalue") {
