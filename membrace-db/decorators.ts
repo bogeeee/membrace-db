@@ -19,13 +19,14 @@ type PersistenceOptions = {
  */
 export const persistence = (options: PersistenceOptions): PropertyDecorator => {
   return function (target: Object, propertyKey: string | symbol) {
-    Reflect.defineMetadata(
+      let clazz = target.constructor;
+      Reflect.defineMetadata(
       propertyKey,
       {
-        ...Reflect.getMetadata(propertyKey, target),
+        ...Reflect.getMetadata(propertyKey, clazz),
         persist: options.persist,
       },
-      target
+      clazz
     );
   };
 };

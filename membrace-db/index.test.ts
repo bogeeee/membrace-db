@@ -77,6 +77,35 @@ describe("persistence decorator", () => {
     db2.close();
   });
 
+    test("also for nested objects", () => {
+        class Nested {
+            @persistence({ persist: false })
+            nonPersist = 123;
+            persist = "random value";
+        }
+
+        class Root {
+            nested = new Nested()
+        }
+
+        const db1 = new MembraceDb<Root>("./db", {
+            root: new Root(),
+            classes: [Root, Nested],
+        });
+
+        db1.root.nested.persist = "NEW VALUE";
+        db1.root.nested.nonPersist = 1234;
+
+        db1.close();
+
+        const db2 = new MembraceDb<Root>("./db", {
+            classes: [Root, Nested],
+        });
+
+        expect(db2.root.nested.persist).toBe("NEW VALUE");
+        expect(db2.root.nested.nonPersist).toBe(123);
+        db2.close();
+    });
 
     it("should persist fields, when persist = undefined (defaulting to true)", () => {
         class Test {

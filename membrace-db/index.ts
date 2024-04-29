@@ -3,7 +3,7 @@ import fs from "node:fs";
 import * as devalue from 'devalue';
 import {parse as brilloutJsonParse} from "@brillout/json-serializer/parse"
 import {stringify as brilloutJsonStringify} from "@brillout/json-serializer/stringify";
-import {fixErrorForJest, getPersistable, visitReplace, VisitReplaceContext} from "./Util.js";
+import {fixErrorForJest, removeNonPersistentFields, visitReplace, VisitReplaceContext} from "./Util.js";
 import lockFile, {lockSync, unlockSync} from "lockfile"
 import { onExit } from 'signal-exit'
 import "reflect-metadata";
@@ -217,8 +217,12 @@ export class MembraceDb<T extends object> {
         
         if(this.verify) {
             const reloaded = this.deserializeFromJson(jsonString);
+            const normalize = (root: T) => {
+                root = structuredClone(root);
+                return this.serialize_removeNonPersistentFields(root);
+            }
             
-            if (!_.isEqual(getPersistable(this.root), getPersistable(reloaded))) {
+            if (!_.isEqual(normalize(this.root), normalize(reloaded))) {
                 throw new Error(
                     "Database content does not reload to the exact same value"
                 );
@@ -325,7 +329,8 @@ export class MembraceDb<T extends object> {
             return visitChilds(value, context)
         }, "onError");
 
-        value = getPersistable(value);
+        value = structuredClone(value);
+        value = this.serialize_removeNonPersistentFields(value);
         
         if(this.format === "devalue") {
             if(foundSomeClassInstance) {
@@ -352,6 +357,29 @@ export class MembraceDb<T extends object> {
         else {
             throw new Error("Invalid format")
         }
+    }
+
+    /**
+     * @param root
+     */
+    protected serialize_removeNonPersistentFields(root: T) {
+        return visitReplace(root, (value, visitChilds, context) => {
+            if (typeof value === "object" && value !== null && value._constructorName !== undefined) { // Value was a class ?
+                const clazz = this.classesMap.name2Class.get(value._constructorName);
+                const keysWithMetadata = Reflect.getMetadataKeys(clazz);
+                keysWithMetadata.forEach((k) => {
+                    const data = Reflect.getMetadata(k, clazz);
+
+                    const shouldBeExcluded = data.persist === false;
+
+                    if (shouldBeExcluded) {
+                        //@ts-ignore
+                        delete value[k];
+                    }
+                });
+            }
+            return visitChilds(value, context);
+        });
     }
 
     protected deserializeFromJson(json: string): T {
