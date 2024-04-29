@@ -2,7 +2,7 @@
   "name": "membrace-example",
   "version": "1.0.0",
   "description": "",
-  "type": "commonjs",
+  "type": "module",
   "main": "./index",
   "scripts": {
     "dev": "tsx watch index.ts"
