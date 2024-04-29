@@ -19,7 +19,7 @@ So, the the concept looks promising and let's see how far we can drill up this c
 - Can persist **class instances** and restore them as such. MembraceDb will tell you to register them.
 - Can keep **backups**. With smart consolidation.
 - **Atomic writes** (file swaps) and corruption checks.
-- Supports data types **beyond json**: `undefined`, `Infinity`, `NaN`, `-0`, `Date`, `Map`, `Set`, `BigInt`, regular expressions, circular references. See the `serializer` option.
+- Supports data types **beyond json**: `undefined`, `Infinity`, `NaN`, `-0`, `Date`, `Map`, `Set`, `BigInt`, regular expressions, circular references. See the `format` option.
 - Planned: Change tracking and **incremental saving**. This will lift it to a professional scale.
 - Planned: Automatic schema migration. Will automacally inspect the typescript types via typescript-rtti, compare the difference and give you a template, how to write the proper migration method for that in your class.
    
