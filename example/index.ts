@@ -1,7 +1,7 @@
 import {MembraceDb, persistence} from "membrace-db";
 
 
-const generateID = () => Math.ceil(Math.random() * 10000);
+const generateID = () => Math.ceil(Math.random() * 10000); // A very stupid id generator !
 
 class User {
     id: number = generateID();
@@ -23,6 +23,8 @@ const db = new MembraceDb<ApplicationData>("./db", {
     root: new ApplicationData(), // Initial content
     classes: [ApplicationData, User] // All your classes must be registed here, so MembraceDb knows, how to restore them from disk.
 });
+
+console.log(`Current db content is: ${JSON.stringify(db.root,undefined, "   ")}`); // On the second run, you will also see Andrej here
 
 db.root.users.push(new User("Andrej")); // somehow modify data (as usual)
 

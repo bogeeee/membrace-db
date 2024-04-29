@@ -98,3 +98,7 @@ db.markChanged() // Informs the db, that the content (deep inside root) has chan
 ````
 
 See the `maxWriteWaitInSeconds` option.
+
+# Example project
+
+[On github](https://github.com/bogeeee/membrace-db/tree/1.x/example) or  [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/fork/github/bogeeee/membrace-db/tree/1.x/example?title=MembraceDb%20example&file=index.ts) 
