@@ -4,7 +4,7 @@ import * as devalue from 'devalue';
 import {parse as brilloutJsonParse} from "@brillout/json-serializer/parse"
 import {stringify as brilloutJsonStringify} from "@brillout/json-serializer/stringify";
 import {fixErrorForJest, visitReplace, VisitReplaceContext} from "./Util.js";
-import lockFile, {lockSync, unlockSync} from "lockfile"
+import lockFile from "proper-lockfile"
 import { onExit } from 'signal-exit'
 import "reflect-metadata";
 export {persistence} from "./decorators.js";
@@ -116,7 +116,7 @@ export class MembraceDb<T extends object> {
 
         // Make sure, no other process is using this db:
         try {
-            lockSync(this.getLockFilePath(), {wait: 0})
+            this.lock();
         }
         catch (e) {
             throw new Error(`Cannot open database in ${this.path} because it is opened/locked by another Node.js/MembraceDb process: ${(e as Error)?.message}`);
@@ -157,14 +157,32 @@ export class MembraceDb<T extends object> {
         this.consolidateBackups();
     }
 
-    /**
-     *
-     * @private
-     * @returns full path/filename of the lock file to be used
-     */
-    private getLockFilePath() {
-        return `${this.path}/.~lock.db.json#`;
+    private lock() {
+        // lockFile.lockSync needs a file that exists. We could just give it this.path, i.e. "db" but then the .lock file would be placed next to it and this is not convenient, cause everyone would have to gitignore that file.
+        const dummyFile = `${this.path}/db`;
+        if(!fs.existsSync(dummyFile)) {
+            fs.appendFileSync(dummyFile, "");
+        }
+
+        try {
+            lockFile.lockSync(dummyFile, {update: 10000});
+        }
+        finally {
+            // Clean up:
+            if(fs.existsSync(dummyFile)) {
+                fs.unlinkSync(dummyFile);
+            }
+        }
     }
+
+    /**
+     * Release the lock
+     * @private
+     */
+    private unlock() {
+        lockFile.unlockSync(this.path);
+    }
+
 
     markChanged_firstTime = true;
 
@@ -517,7 +535,7 @@ export class MembraceDb<T extends object> {
 
         this.writeToDisk();
 
-        unlockSync(this.getLockFilePath()); // Release lock
+        this.unlock();
 
         this.state = "closed";
     }
