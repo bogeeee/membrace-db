@@ -2,13 +2,13 @@
   "name": "membrace-example",
   "version": "1.0.0",
   "description": "",
-  "type": "commonjs",
+  "type": "module",
   "main": "./index",
   "scripts": {
     "dev": "tsx watch index.ts"
   },
   "dependencies": {
-    "membrace-db": "^1.0.4"
+    "membrace-db": "^1.0.5"
   },
   "devDependencies": {
     "tsx": "^4.7.0"
