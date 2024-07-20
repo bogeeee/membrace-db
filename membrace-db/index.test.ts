@@ -38,9 +38,9 @@ describe('Basic test', () => {
 
 describe('db locking', () => {
     it("should not be allowed to open a locked db", () => {
-        let miniDb = new MembraceDb();
+        let miniDb = new MembraceDb("db", {maxLockWaitMs: 500});
         try {
-            expect(() => new MembraceDb()).toThrow(/locked/);
+            expect(() => new MembraceDb("db", {maxLockWaitMs: 500})).toThrow(/locked/);
         }
         finally {
             miniDb.close();

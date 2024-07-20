@@ -3,7 +3,7 @@ import fs from "node:fs";
 import * as devalue from 'devalue';
 import {parse as brilloutJsonParse} from "@brillout/json-serializer/parse"
 import {stringify as brilloutJsonStringify} from "@brillout/json-serializer/stringify";
-import {fixErrorForJest, visitReplace, VisitReplaceContext} from "./Util.js";
+import {fixErrorForJest, visitReplace, VisitReplaceContext, delaySync} from "./Util.js";
 import lockFile from "proper-lockfile"
 import { onExit } from 'signal-exit'
 import "reflect-metadata";
@@ -91,11 +91,19 @@ export class MembraceDb<T extends object> {
      */
     format: "brilloutJson" | "devalue" = "brilloutJson"
 
+    /**
+     * Maximum time to wait (in milliseconds) for for a life-sign of another process (=updating this db/db.lock timestamp), until it is considered stale and this instance can take over the db.
+     * Default: 2 seconds for NODE_ENV=development, 12 seconds otherwise
+     */
+    maxLockWaitMs?: number;
+
     //***********************************************************************************************
     //***** Section: State  *************************************************************************
     //***********************************************************************************************
 
     state: "open" | "closed" | Error
+
+    theLock?: ReturnType<lockFile["lockSync"]>
 
     /**
      * Error, when there was an error last time
@@ -157,7 +165,24 @@ export class MembraceDb<T extends object> {
         this.consolidateBackups();
     }
 
+    /**
+     * Obtains/creates the lockfile. Waits for other processes to release it, according the config.
+     * - The folder must exist before
+     * @private
+     */
     private lock() {
+        // Determine maxLockWaitMs:
+        let maxLockWaitMs = this.maxLockWaitMs;
+        if(maxLockWaitMs === undefined) {
+            if(process.env.NODE_ENV === 'development') {
+                maxLockWaitMs = 2000;
+            }
+            else {
+                maxLockWaitMs = 12000;
+            }
+        }
+
+
         // lockFile.lockSync needs a file that exists. We could just give it this.path, i.e. "db" but then the .lock file would be placed next to it and this is not convenient, cause everyone would have to gitignore that file.
         const dummyFile = `${this.path}/db`;
         if(!fs.existsSync(dummyFile)) {
@@ -165,7 +190,38 @@ export class MembraceDb<T extends object> {
         }
 
         try {
-            lockFile.lockSync(dummyFile, {update: 10000});
+            const doLock = () => {
+                this.theLock = lockFile.lockSync(dummyFile, {stale: maxLockWaitMs});
+            }
+            function getMillies() {
+                return new Date().getTime();
+            }
+
+            const start = getMillies();
+            let diag_startMessageWritten = false;
+            while(true) {
+                try {
+                    doLock();
+                    break;
+                } catch (e) {
+                    if(getMillies() < (start + maxLockWaitMs)) {
+                        // Give it another try:
+                        if(maxLockWaitMs > 1000) { // Is it worth, spamming the console ?
+                            // Output diagnosis to the console:
+                            if (!diag_startMessageWritten) {
+                                process.stdout.write(`The MembraceDb database (${this.path}) seems to be locked by another process. Waiting, if that process is still alive for a maximum of ${Math.ceil(maxLockWaitMs / 1000)} seconds.${(process.env.NODE_ENV === undefined && this.maxLockWaitMs === undefined) ? " Hint: Properly set NODE_ENV to 'development' or 'production', to speed it up, or:" : ""}${this.maxLockWaitMs === undefined ? " It can be configured via maxLockWaitMs option." : ""}`);
+                                diag_startMessageWritten = true;
+                            }
+                            process.stdout.write(".");
+                        }
+                        delaySync(100);
+                    }
+                    else {
+                        throw e;
+                    }
+                }
+            }
+
         }
         finally {
             // Clean up:
@@ -176,11 +232,13 @@ export class MembraceDb<T extends object> {
     }
 
     /**
-     * Release the lock
+     * Release the lock, created this this.lock()
      * @private
      */
     private unlock() {
-        lockFile.unlockSync(this.path);
+        if(this.theLock) {
+            this.theLock!();
+        }
     }
 
 
@@ -541,4 +599,4 @@ export class MembraceDb<T extends object> {
     }
 }
 
-export type MembraceDbOptions<T extends object> = Partial<Pick<MembraceDb<T>, "root" | "classes" | "format" | "beautify" | "keepBackups" | "maxWriteWaitInSeconds">>
+export type MembraceDbOptions<T extends object> = Partial<Pick<MembraceDb<T>, "root" | "classes" | "format" | "beautify" | "keepBackups" | "maxWriteWaitInSeconds" | "maxLockWaitMs">>

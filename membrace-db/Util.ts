@@ -172,6 +172,17 @@ export function errorToString(e: any): string {
         (e.cause ? `\nCause: ${errorToString(e.cause)}` : '')
 }
 
+export function delaySync(millies: number) {
+    function getMillies() {
+        return new Date().getTime();
+    }
+
+    const start = getMillies();
+    while(getMillies() < start + millies) {
+
+    }
+}
+
 
 export type ErrorWithExtendedInfo = Error & { cause?: Error, fileName?: string, lineNumber?: Number, columnNumber?: Number, stack?: string };
 
