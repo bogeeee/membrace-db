@@ -103,7 +103,10 @@ export class MembraceDb<T extends object> {
 
     state: "open" | "closed" | Error
 
-    theLock?: ReturnType<lockFile["lockSync"]>
+    /**
+     * The unlock function
+     */
+    theLock?: (() => void);
 
     /**
      * Error, when there was an error last time
