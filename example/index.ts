@@ -21,7 +21,7 @@ class ApplicationData {
 
 const db = new MembraceDb<ApplicationData>("./db", {
     root: new ApplicationData(), // Initial content
-    classes: [ApplicationData, User] // All your classes must be registed here, so MembraceDb knows, how to restore them from disk.
+    classes: [ApplicationData, User], // All your classes must be registed here, so MembraceDb knows, how to restore them from disk.
 });
 
 console.log(`Current db content is: ${JSON.stringify(db.root,undefined, "   ")}`); // On the second run, you will also see Andrej here

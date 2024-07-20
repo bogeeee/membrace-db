@@ -24,7 +24,7 @@ export class MembraceDb<T extends object> {
 
     protected static get devalue() {
         if(this._devalue === undefined) {
-            throw new Error(`You can only use the 'devalue' feature when 'import'ing membrace-db (=ESM, not commonjs). Make sure that the package that uses MembraceDb has type="module" set in the package.json.\nFor Membrace-Db developers: See, how index.test.ts imports the MembraceDb class and injects the _devalue field.`)
+            throw new Error(`You can only use the 'devalue' feature when **'import'**ing membrace-db (=ESM, not commonjs). Make sure that the package that uses MembraceDb has type="module" set in the package.json.\nFor Membrace-Db developers: See, how index.test.ts imports the MembraceDb class and injects the _devalue field. Also, for non-devs: If you use tsx, ts-node or bun with your commonjs project, you could use that mentioned trick (see membrace-db github repo/membrace-db/index.test.ts), to get it working.`)
         }
         return this._devalue;
     }
