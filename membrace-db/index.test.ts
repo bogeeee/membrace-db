@@ -4,6 +4,10 @@ import {MembraceDb} from "./index";
 import exp from "constants";
 import { persistence } from "./decorators";
 
+// Inject devalue package into MembraceDb class here, cause this can be used in an ESM world only
+import * as devalue from 'devalue';
+MembraceDb._devalue = devalue;
+
 beforeEach(() => {
     // Clear folder:
     if(fs.existsSync("db")) {

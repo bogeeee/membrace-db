@@ -1,6 +1,6 @@
 import _ from "underscore";
 import fs from "node:fs";
-import * as devalue from 'devalue';
+import type * as Devalue_Type from 'devalue';
 import {parse as brilloutJsonParse} from "@brillout/json-serializer/parse"
 import {stringify as brilloutJsonStringify} from "@brillout/json-serializer/stringify";
 import {fixErrorForJest, visitReplace, VisitReplaceContext, delaySync} from "./Util.js";
@@ -15,6 +15,19 @@ type ConstructorWithNoArgs<T> = {
 
 export class MembraceDb<T extends object> {
     static systemClasses: ConstructorWithNoArgs<unknown>[] = [Date]
+    /**
+     * The "devalue" package.
+     * This is a bug workaround: We want to publish MembraceDb as a dual-package that supports commonJs. So This code is also compiled to commonjs code (see tsconfig.js/"module": "CommonJS"). But commonjs cannot `require` the`devalue` package.
+     * Therefore we say: Bad luck for commonjs users,so they cannot use this feature. But for ESM users, when index.ts is imported, the devalue field will be injected/set with the proper imported package. See index_esm.mjs
+     */
+    static _devalue?: typeof Devalue_Type
+
+    protected static get devalue() {
+        if(this._devalue === undefined) {
+            throw new Error(`You can only use the 'devalue' feature when 'import'ing membrace-db (=ESM, not commonjs). Make sure that the package that uses MembraceDb has type="module" set in the package.json.\nFor Membrace-Db developers: See, how index.test.ts imports the MembraceDb class and injects the _devalue field.`)
+        }
+        return this._devalue;
+    }
 
     //***********************************************************************************************
     //***** Section: Properties (Configuration). Also each are listed in type MembraceDbOptions *********
@@ -415,7 +428,7 @@ export class MembraceDb<T extends object> {
             if(foundSomeClassInstance) {
                 value = structuredClone(value); // This converts all class instances back to plain objects. Because devalue cannot store class instances
             }
-            let result = devalue.stringify(value);
+            let result = MembraceDb.devalue.stringify(value);
             if (this.beautify) {
                 result = JSON.stringify(JSON.parse(result), null, 4);
             }
@@ -467,7 +480,7 @@ export class MembraceDb<T extends object> {
     protected deserializeFromJson(json: string): T {
         let result: T;
         if(this.format === "devalue") {
-            result = devalue.parse(json) as T;
+            result = MembraceDb.devalue.parse(json) as T;
         }
         else if(this.format === "brilloutJson") {
             result = brilloutJsonParse(json) as T;
