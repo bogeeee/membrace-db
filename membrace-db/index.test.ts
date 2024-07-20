@@ -36,6 +36,22 @@ describe('Basic test', () => {
 
 });
 
+describe('Basic test with devalue', () => {
+    it("should have the same graph when reopening", () => {
+        let miniDb = new MembraceDb("db", {root: createSampleObjectGraphForJson(), format: "devalue"});
+        miniDb.close();
+
+        let miniDb2 = new MembraceDb("db", {format: "devalue"});
+        try {
+            expect(miniDb2.root).toStrictEqual(createSampleObjectGraphForJson());
+        }
+        finally {
+            miniDb2.close();
+        }
+    })
+
+});
+
 describe('db locking', () => {
     it("should not be allowed to open a locked db", () => {
         let miniDb = new MembraceDb("db", {maxLockWaitMs: 500});
