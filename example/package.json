@@ -8,7 +8,7 @@
     "dev": "tsx watch index.ts"
   },
   "dependencies": {
-    "membrace-db": "^1.0.1"
+    "membrace-db": "^1.0.4"
   },
   "devDependencies": {
     "tsx": "^4.7.0"
