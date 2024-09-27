@@ -186,3 +186,19 @@ export function delaySync(millies: number) {
 
 export type ErrorWithExtendedInfo = Error & { cause?: Error, fileName?: string, lineNumber?: Number, columnNumber?: Number, stack?: string };
 
+export function dateToFileSystemFriendlyString(date: Date) {
+    let result = date.toISOString().replace(/:/g, "-"); // Windows friendly replace
+    //safety check:
+    if(fileSystemFriendlyDateStringToDate(result).getTime() !== date.getTime()) {
+        throw new Error("Date assertion failed. Pleaes report this as a bug");
+    }
+    return result;
+}
+
+/**
+ * Reverse function of {@link dateToFileSystemFriendlyString}
+ */
+export function fileSystemFriendlyDateStringToDate(dateString: string): Date {
+    const parsableDate = dateString.replace(/(?<=T.*)-/g,":"); // Replace the "-" of the time portion with ":" so it can be parsed by the following line
+    return new Date(parsableDate);
+}

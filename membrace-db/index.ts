@@ -3,7 +3,13 @@ import fs from "node:fs";
 import type * as Devalue_Type from 'devalue';
 import {parse as brilloutJsonParse} from "@brillout/json-serializer/parse"
 import {stringify as brilloutJsonStringify} from "@brillout/json-serializer/stringify";
-import {fixErrorForJest, visitReplace, VisitReplaceContext, delaySync} from "./Util.js";
+import {
+    fixErrorForJest,
+    visitReplace,
+    VisitReplaceContext,
+    delaySync,
+    fileSystemFriendlyDateStringToDate, dateToFileSystemFriendlyString
+} from "./Util.js";
 import lockFile from "proper-lockfile"
 import { onExit } from 'signal-exit'
 import "reflect-metadata";
@@ -350,7 +356,7 @@ export class MembraceDb<T extends object> {
             fs.renameSync(nextFile, dbFile); // swap
 
             // Archive
-            fs.renameSync(previousFile, `${this.path}/db_${creationDate.toISOString()}.json`)
+            fs.renameSync(previousFile, `${this.path}/db_${dateToFileSystemFriendlyString(creationDate)}.json`)
             this.consolidateBackups();
         }
         else {
@@ -533,7 +539,7 @@ export class MembraceDb<T extends object> {
         fs.readdirSync(this.path).forEach(fileName => {
             const match = /db_(.*)\.json/.exec(fileName);
             if(match) {
-                const fileDate = new Date(match[1]);
+                const fileDate = fileSystemFriendlyDateStringToDate(match[1]);
                 // @ts-ignore
                 allBackupFiles.push({
                     ageMs: now.getTime() - fileDate.getTime(),
